@@ -1,5 +1,5 @@
 // heureka-reviews.js
-$(document).ready(function() {
+$(document).ready(function () {
     var HeurekaCountry = { CZ: 1, SK: 2, HU: 3 };
     var HeurekaReviewsTemplateType = { DEFAULT: 0, STYLE1: 1, STYLE2: 2, STYLE3: 3 };
 
@@ -20,7 +20,7 @@ $(document).ready(function() {
                 const params = new URLSearchParams(url.search);
                 shopId = params.get('shopId');
                 template = params.get('template') || 'Classic';
-                console.log(template);
+
             }
         });
 
@@ -28,22 +28,20 @@ $(document).ready(function() {
             url: `https://addons-shoptet.adamzatopek.cz/heureka-reviews/heureka_data.php?shopId=${shopId}`,
             type: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.error) {
-                    console.error("Chyba: " + response.error);
+
                     return;
                 }
 
-                let reviewsUrl = response.reviewsUrl || "";
-                let heurekaShopName = response.HeurekaShopName || "";
-                let heurekaReviewsTitle = response.HeurekaReviewsTitle || "";
+                const reviewsUrl = response.reviewsUrl || "";
+                const heurekaShopName = response.HeurekaShopName || "";
+                const heurekaReviewsTitle = response.HeurekaReviewsTitle || "";
                 var heurekaCountry = response.HeurekaCountry;
                 var heurekaReviewsTemplateType = response.HeurekaReviewsTemplateType;
                 var reviewsCount = response.totalCount;
 
-                if(reviewsCount===0)
-                {
-                    console.error("Počet recenzí je: " + reviewsCount);
+                if (reviewsCount === 0) {
                     return;
                 }
                 var imgSourceClass = {
@@ -62,9 +60,9 @@ $(document).ready(function() {
                     [HeurekaCountry.HU]: "Ellenőrzött ügyfél"
                 };
                 var countryTranslations = {
-                    [HeurekaCountry.CZ]: ["Obchod", "hodnotilo", "zákazníků", "na","Heureka.cz"],
+                    [HeurekaCountry.CZ]: ["Obchod", "hodnotilo", "zákazníků", "na", "Heureka.cz"],
                     [HeurekaCountry.SK]: ["Obchod", "hodnotilo", "zákazníkov", "na", "Heureka.sk"],
-                    [HeurekaCountry.HU]: ["Kereskedelmi", "értékelték", "vásárlók", "oldalon","az Arukereso.hu"]
+                    [HeurekaCountry.HU]: ["Kereskedelmi", "értékelték", "vásárlók", "oldalon", "az Arukereso.hu"]
                 };
 
                 var reviewClass = {
@@ -84,7 +82,7 @@ $(document).ready(function() {
 
                 for (let i = 0; i < reviews.length; i++) {
                     var rating = parseFloat(reviews[i].getElementsByTagName('total_rating')[0]?.textContent || 0);
-                    
+
 
                     var unixTimestamp = parseInt(reviews[i].getElementsByTagName('unix_timestamp')[0]?.textContent || 0);
                     var date = new Date(unixTimestamp * 1000);
@@ -122,12 +120,12 @@ $(document).ready(function() {
                     `        <div class="reviews-wrapper">` +
                     `            <div class="reviews">`;
 
-                reviewsArray.forEach(function(review) {
+                reviewsArray.forEach(function (review) {
                     reviewsHtml += `<div class="review ${imgSourceClass[heurekaCountry]}">` +
                         `    <div class="review-header">` +
                         `        <div class="name">${countryCustomer[heurekaCountry]}</div>` +
                         `        <div class="date">${review.date}</div>` +
-                        `        <div class="review-stars">${getStarRating(review.rating)}</div>` +
+                        `        <div class="review-stars">${getStarRating(review.rating)}<span class="sr-only review-rating-percent">${((review.rating/5)*100)} %</span></div>` +
                         `    </div>` +
                         `    <div class="review-content">` +
                         `        <div class="review-summary">${review.summary}</div>` +
@@ -144,189 +142,80 @@ $(document).ready(function() {
                     `</div>`;
 
                 // Přidání do DOMu
-                if ($('body').hasClass('one-column-body')) {
+                var $body = $('body');
+
+                function insertReviews($root, targetSelector) {
+                    if (!targetSelector) {
+                        return;
+                    }
+
+                    var $target = $root.find(targetSelector);
+
+                    if ($target.length) {
+                        // Stejně jako původní target.before(reviewsHtml)
+                        $target.before(reviewsHtml);
+                    } else {
+                        $root.append(reviewsHtml);
+                    }
+                }
+
+                if ($body.hasClass('one-column-body')) {
 
                     if (template === 'Classic') {
-                        $('.overall-wrapper .content-wrapper.container:last .content').append(reviewsHtml);                        
+                        $('.overall-wrapper .content-wrapper.container:last .content')
+                            .append(reviewsHtml);
+                    } else {
+                        var selectorByTemplateOneColumn = {
+                            Techno: '.welcome-wrapper',
+                            Tango: '.welcome-wrapper',
+                            Waltz: '.welcome-wrapper',
+                            Step: '.homepage-texts-wrapper',
+                            Disco: '.welcome-wrapper',
+                            Samba: '.welcome-wrapper'
+                        };
+
+                        insertReviews($('main#content'), selectorByTemplateOneColumn[template]);
                     }
-                    else if(template === 'Techno')
-                    {
-                        var target = $("main#content .welcome-wrapper");
-                        if (target.length) {
-                            target.before(reviewsHtml);
-                        } else {
-                            $("main#content").append(reviewsHtml);
-                        }
-                    }
-                    else if(template === 'Tango')
-                        {
-                            var target = $("main#content .welcome-wrapper");
-                            if (target.length) {
-                                target.before(reviewsHtml);
-                            } else {
-                                $("main#content").append(reviewsHtml);
-                            }
-                        }
-                        else if(template === 'Waltz')
-                            {
-                                var target = $("main#content .welcome-wrapper");
-                                if (target.length) {
-                                    target.before(reviewsHtml);
-                                } else {
-                                    $("main#content").append(reviewsHtml);
-                                }
-                            }
-                            else if(template === 'Step')
-                                {
-                                    var target = $("main#content .homepage-texts-wrapper");
-                                    if (target.length) {
-                                        target.before(reviewsHtml);
-                                    } else {
-                                        $("main#content").append(reviewsHtml);
-                                    }
-                                }
-                                else if(template === 'Disco')
-                                    {
-                                        var target = $("main#content .welcome-wrapper");
-                                        if (target.length) {
-                                            target.before(reviewsHtml);
-                                        } else {
-                                            $("main#content").append(reviewsHtml);
-                                        }
-                                    }
-                                    else if(template === 'Samba')
-                                        {
-                                            var target = $("main#content .welcome-wrapper");
-                                            if (target.length) {
-                                                target.before(reviewsHtml);
-                                            } else {
-                                                $("main#content").append(reviewsHtml);
-                                            }
-                                        }                                       
-                                        else{
-                                            console.log("One column - šablona neznáma");
-                                        }
-                }
-                else if($('body').hasClass('multiple-columns-body')){
+
+                } else if ($body.hasClass('multiple-columns-body')) {
 
                     if (template === 'Classic') {
-                        var target = $("main#content .homepage-box.welcome-wrapper");
-                        if (target.length) {
-                            target.before(reviewsHtml);
+                        var $targetClassic = $('main#content .homepage-box.welcome-wrapper');
+
+                        if ($targetClassic.length) {
+                            $targetClassic.before(reviewsHtml);
                         } else {
-                            $("main#content").append(reviewsHtml);
+                            $('main#content').append(reviewsHtml);
                         }
-                                            
+
+                    } else {
+                        var selectorByTemplateMultiColumn = {
+                            Techno: '.welcome-wrapper',
+                            Tango: '.welcome-wrapper',
+                            Waltz: '.welcome-wrapper',
+                            Step: '.homepage-texts-wrapper',
+                            Disco: '.welcome-wrapper',
+                            Samba: '.welcome-wrapper'
+                        };
+
+                        insertReviews($('main#content'), selectorByTemplateMultiColumn[template]);
                     }
-                    else if(template === 'Techno')
-                        {
-                            var target = $("main#content .welcome-wrapper");
-                            if (target.length) {
-                                target.before(reviewsHtml);
-                            } else {
-                                $("main#content").append(reviewsHtml);
-                            }
-                        }
-                        else if(template === 'Tango')
-                            {
-                                var target = $("main#content .welcome-wrapper");
-                                if (target.length) {
-                                    target.before(reviewsHtml);
-                                } else {
-                                    $("main#content").append(reviewsHtml);
-                                }
-                            }
-                            else if(template === 'Waltz')
-                                {
-                                    var target = $("main#content .welcome-wrapper");
-                                    if (target.length) {
-                                        target.before(reviewsHtml);
-                                    } else {
-                                        $("main#content").append(reviewsHtml);
-                                    }
-                                }
-                                else if(template === 'Step')
-                                    {
-                                        var target = $("main#content .homepage-texts-wrapper");
-                                        if (target.length) {
-                                            target.before(reviewsHtml);
-                                        } else {
-                                            $("main#content").append(reviewsHtml);
-                                        }
-                                    }
-                                    else if(template === 'Disco')
-                                        {
-                                            var target = $("main#content .welcome-wrapper");
-                                            if (target.length) {
-                                                target.before(reviewsHtml);
-                                            } else {
-                                                $("main#content").append(reviewsHtml);
-                                            }
-                                        }
-                                        else if(template === 'Samba')
-                                            {
-                                                var target = $("main#content .welcome-wrapper");
-                                                if (target.length) {
-                                                    target.before(reviewsHtml);
-                                                } else {
-                                                    $("main#content").append(reviewsHtml);
-                                                }
-                                            }
-                                           
-                                            else{
-                                                console.log("Multiple columns - šablona neznáma");
-                                            }
-                }
-                else{
-                    if(template === 'Echo')
-                        {
-                            var target = $("main#content-in .welcome-wrap");
-                            if (target.length) {
-                                target.before(reviewsHtml);
-                            } else {
-                                $("main#content-in").append(reviewsHtml);
-                            }
-                        }
-                        else if(template === 'Soul')
-                            {
-                            var target = $("main#content-in article.welcome");
-                            if (target.length) {
-                                target.before(reviewsHtml);
-                            } else {
-                                $("main#content-in").append(reviewsHtml);
-                            } 
-                            }
-                            else if(template === 'Pop')
-                                {
-                                    var target = $("main#content-in article#welcome");
-                                    if (target.length) {
-                                        target.before(reviewsHtml);
-                                    } else {
-                                        $("main#content-in").append(reviewsHtml);
-                                    } 
-                                }
-                                else if(template === 'Rock')
-                                    {
-                                        var target = $("main#content-in article#welcome");
-                                        if (target.length) {
-                                            target.before(reviewsHtml);
-                                        } else {
-                                            $("main#content-in").append(reviewsHtml);
-                                        } 
-                                    }
-                                    else{
-                                        console("Ani jedna ze tříd one-column-body nebo multiple-columns-body");
-                                    }
-                    
-                }
 
-   
+                } else {
 
+                    var selectorByTemplateOther = {
+                        Echo: '.welcome-wrap',
+                        Soul: 'article.welcome',
+                        Pop: 'article#welcome',
+                        Rock: 'article#welcome'
+                    };
+
+                    insertReviews($('main#content-in'), selectorByTemplateOther[template]);
+                }
                 // Inicializace slideru
                 initializeSlider();
             },
-            error: function(error) {
-                console.error("Došlo k chybě při načítání dat: ", error);
+            error: function (error) {
             }
         });
     }
