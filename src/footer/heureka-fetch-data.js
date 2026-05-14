@@ -1,4 +1,5 @@
 // heureka-reviews.js
+import { initializeSlider } from './heureka-reviews-slider.js';
 $(document).ready(function () {
     var HeurekaCountry = { CZ: 1, SK: 2, HU: 3 };
     var HeurekaReviewsTemplateType = { DEFAULT: 0, STYLE1: 1, STYLE2: 2, STYLE3: 3 };
