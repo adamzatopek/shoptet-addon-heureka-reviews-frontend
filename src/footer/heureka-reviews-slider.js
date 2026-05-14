@@ -69,3 +69,5 @@ function initializeSlider() {
     updateSlider();
     startAutoSlide();
 }
+
+export { initializeSlider };   
