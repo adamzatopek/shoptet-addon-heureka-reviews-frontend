@@ -14,35 +14,24 @@ $(document).ready(function () {
     }
 
     if (window.location.pathname === '/') {
- let shopId = 0;
-let template = 'Classic';
-let lang = 'cs';
+        const shoptetDataLayer = window.getShoptetDataLayer();
+        const shopId = parseInt(shoptetDataLayer?.projectId, 10);
+        const lang = shoptetDataLayer?.language;
+        const template = window.shoptet?.design?.template ?? 'Classic';
 
-if (typeof getShoptetDataLayer === 'function') {
-    shopId = parseInt(getShoptetDataLayer('projectId'), 10) || 0;
-    lang = getShoptetDataLayer('language') || 'cs';
-} else if (typeof dataLayer !== 'undefined' && dataLayer[0]?.shoptet) {
-    shopId = parseInt(dataLayer[0].shoptet.projectId, 10) || 0;
-    lang = dataLayer[0].shoptet.language || 'cs';
-}
-
-if (window.shoptet?.design?.template) {
-    template = window.shoptet.design.template;
-}
-
-if (!shopId) {
-    return;
-}
+        if (!shopId) {
+            return;
+        }
 
         $.ajax({
             url: `https://addons-shoptet.adamzatopek.cz/heureka-reviews/heureka_data.php`,
             type: 'GET',
             dataType: 'json',
-           data: {
-        shopId: shopId,
-        template: template,
-        lang: lang
-    },
+            data: {
+                    shopId,
+                    template,
+                    lang
+            },
             success: function (response) {
                 if (response.error) {
 
