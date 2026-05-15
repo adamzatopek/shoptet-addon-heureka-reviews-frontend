@@ -1,11 +1,6 @@
 // heureka-reviews.js
 import { initializeSlider } from './heureka-reviews-slider.js';
-window.azHeurekaReviewsConfig = {
-    host: '#HOST#',
-    shopId: '#PROJECT_ID#',
-    template: '#TEMPLATE#',
-    lang: '#LANGUAGE#'
-};
+
 $(document).ready(function () {
     var HeurekaCountry = { CZ: 1, SK: 2, HU: 3 };
     var HeurekaReviewsTemplateType = { DEFAULT: 0, STYLE1: 1, STYLE2: 2, STYLE3: 3 };
@@ -19,27 +14,35 @@ $(document).ready(function () {
     }
 
     if (window.location.pathname === '/') {
-    const heurekaConfig = window.azHeurekaReviewsConfig || {};
+ let shopId = 0;
+let template = 'Classic';
+let lang = 'cs';
 
-        let shopId = heurekaConfig.shopId ? parseInt(heurekaConfig.shopId, 10) : 0;
-        let template = heurekaConfig.template || 'Classic';
-        let lang = heurekaConfig.lang || 'cs';
-        let host = heurekaConfig.host || window.location.hostname;
+if (typeof getShoptetDataLayer === 'function') {
+    shopId = parseInt(getShoptetDataLayer('projectId'), 10) || 0;
+    lang = getShoptetDataLayer('language') || 'cs';
+} else if (typeof dataLayer !== 'undefined' && dataLayer[0]?.shoptet) {
+    shopId = parseInt(dataLayer[0].shoptet.projectId, 10) || 0;
+    lang = dataLayer[0].shoptet.language || 'cs';
+}
 
-        if (!shopId) {
-            return;
-        }
+if (window.shoptet?.design?.template) {
+    template = window.shoptet.design.template;
+}
+
+if (!shopId) {
+    return;
+}
 
         $.ajax({
             url: `https://addons-shoptet.adamzatopek.cz/heureka-reviews/heureka_data.php`,
             type: 'GET',
             dataType: 'json',
-            data: {
-                shopId: shopId,
-                template: template,
-                lang: lang,
-                host: host
-            },
+           data: {
+        shopId: shopId,
+        template: template,
+        lang: lang
+    },
             success: function (response) {
                 if (response.error) {
 
