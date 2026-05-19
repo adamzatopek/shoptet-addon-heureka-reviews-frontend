@@ -17,7 +17,7 @@ $(document).ready(function () {
         const shoptetDataLayer = window.getShoptetDataLayer();
         const shopId = parseInt(shoptetDataLayer?.projectId, 10);
         const lang = shoptetDataLayer?.language;
-        const template = window.shoptet?.design?.template ?? 'Classic';
+        const template = window.shoptet?.design?.template?.name ?? 'Classic';
 
         if (!shopId) {
             return;
