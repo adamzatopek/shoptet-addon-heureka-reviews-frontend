@@ -1,4 +1,6 @@
 // heureka-reviews.js
+import { initializeSlider } from './heureka-reviews-slider.js';
+
 $(document).ready(function () {
     var HeurekaCountry = { CZ: 1, SK: 2, HU: 3 };
     var HeurekaReviewsTemplateType = { DEFAULT: 0, STYLE1: 1, STYLE2: 2, STYLE3: 3 };
@@ -12,22 +14,24 @@ $(document).ready(function () {
     }
 
     if (window.location.pathname === '/') {
-        let shopId = '';
-        let template = '';
-        document.querySelectorAll('script').forEach(script => {
-            if (script.src.includes('heureka-fetch-data.js')) {
-                const url = new URL(script.src);
-                const params = new URLSearchParams(url.search);
-                shopId = params.get('shopId');
-                template = params.get('template') || 'Classic';
+        const shoptetDataLayer = window.getShoptetDataLayer();
+        const shopId = parseInt(shoptetDataLayer?.projectId, 10);
+        const lang = shoptetDataLayer?.language;
+        const template = window.shoptet?.design?.template ?? 'Classic';
 
-            }
-        });
+        if (!shopId) {
+            return;
+        }
 
         $.ajax({
-            url: `https://addons-shoptet.adamzatopek.cz/heureka-reviews/heureka_data.php?shopId=${shopId}`,
+            url: `https://addons-shoptet.adamzatopek.cz/heureka-reviews/heureka_data.php`,
             type: 'GET',
             dataType: 'json',
+            data: {
+                    shopId,
+                    template,
+                    lang
+            },
             success: function (response) {
                 if (response.error) {
 
