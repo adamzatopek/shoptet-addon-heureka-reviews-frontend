@@ -12,6 +12,15 @@ $(document).ready(function () {
         if (rating >= 1.5) return '★★☆☆☆';
         return '★☆☆☆☆';
     }
+    function roundUpToOneDecimal(value) {
+        var number = Number(value);
+    
+        if (!Number.isFinite(number)) {
+            return 0;
+        }
+    
+        return Math.ceil((number * 10) - 1e-10) / 10;
+    }
 
     if (window.location.pathname === '/') {
         const shoptetDataLayer = window.getShoptetDataLayer();
@@ -107,13 +116,13 @@ $(document).ready(function () {
                     });
                 }
 
-                var averageRating = totalRatingSum / reviewsCount;
-                var averageRatingRounded = Math.ceil(averageRating * 10) / 10;
-                averageRatingRounded = Math.min(averageRatingRounded, 5);
-                var averageRatingPercent = ((averageRatingRounded / 5) * 100).toFixed(1).replace('.', ',');
-
+                var averageRating = reviewsCount > 0 ? totalRatingSum / reviewsCount : 0;
+                var averageRatingRounded = Math.min(roundUpToOneDecimal(averageRating), 5);
+                var averageRatingPercentNumber = Math.min(roundUpToOneDecimal((averageRatingRounded / 5) * 100), 100);
+                var averageRatingPercent = averageRatingPercentNumber.toFixed(1).replace('.', ',');
+                
                 if (averageRatingPercent.endsWith(',0')) {
-                    averageRatingPercent = averageRatingPercent.replace(',0', '');
+                    averageRatingPercent = averageRatingPercent.slice(0, -2);
                 }
 
                 var reviewsHtml = `<h2 class="reviews-header">${heurekaReviewsTitle || countryTitles[heurekaCountry]}</h2>` +
