@@ -108,14 +108,17 @@ $(document).ready(function () {
                 }
 
                 var averageRating = totalRatingSum / reviewsCount;
-                var averageRatingPercent = ((averageRating / 5) * 100).toFixed(1).replace('.', ',');
+                var averageRatingRounded = Math.ceil(averageRating * 10) / 10;
+                averageRatingRounded = Math.min(averageRatingRounded, 5);
+                var averageRatingPercent = ((averageRatingRounded / 5) * 100).toFixed(1).replace('.', ',');
+
                 if (averageRatingPercent.endsWith(',0')) {
                     averageRatingPercent = averageRatingPercent.replace(',0', '');
                 }
 
                 var reviewsHtml = `<h2 class="reviews-header">${heurekaReviewsTitle || countryTitles[heurekaCountry]}</h2>` +
                     `<div class="reviews-content ${reviewClass}">` +
-                    `    <div class="reviews-total-rating"><span class="value">${averageRatingPercent} %</span>&nbsp;&nbsp;<span class="store-stars">${getStarRating(averageRating)}</span></div>` +
+                    `    <div class="reviews-total-rating"><span class="value">${averageRatingPercent} %</span>&nbsp;&nbsp;<span class="store-stars">${getStarRating(averageRatingRounded)}</span></div>` +
                     `    <div class="store-info">` +
                     (heurekaShopName ? `${countryTranslations[heurekaCountry][0]} <a href="${reviewsUrl}">${heurekaShopName}</a> ${countryTranslations[heurekaCountry][1]} <span class="numb-of-customers">${reviewsCount}</span> ${countryTranslations[heurekaCountry][2]} ${countryTranslations[heurekaCountry][3]} <a href="${reviewsUrl}">${countryTranslations[heurekaCountry][4]}</a>.` : `${countryTranslations[heurekaCountry][0]} ${countryTranslations[heurekaCountry][1]} <span class="numb-of-customers">${reviews.length}</span> ${countryTranslations[heurekaCountry][2]} ${countryTranslations[heurekaCountry][3]} <a href="${reviewsUrl}">${countryTranslations[heurekaCountry][4]}</a>.`) +
                     `</div>` +
